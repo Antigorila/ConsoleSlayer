@@ -32,7 +32,9 @@ namespace ConsoleSlayer_02
         Plant_Sword,
         Plant_Spike,
         Plant_Tentacle,
-        Ground_Skull
+        Ground_Skull,
+        Skull_Door,
+        None
     }
     internal class Tile
     {
@@ -46,7 +48,10 @@ namespace ConsoleSlayer_02
             Position = position;
             Type = type;
             TextureType = textureType;
-            Texture = Map.Textures[textureType];
+            if (textureType != ConsoleSlayer_02.Texture.None)
+            {
+                Texture = Map.Textures[textureType];
+            }
         }
 
         public bool IsAtPosition(Vector2 playerPosition, float blockSize)

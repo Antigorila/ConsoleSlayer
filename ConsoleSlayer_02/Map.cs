@@ -39,14 +39,15 @@ namespace ConsoleSlayer_02
             readerNormal.DiscardBufferedData();
 
             // Initialize your map arrays
-            Map_Normal = new Tile[Columns, Rows];
-            Map_Decor = new Tile[Columns, Rows];
+            Map_Normal = new Tile[Rows, Columns];
+            Map_Decor = new Tile[Rows, Columns];
             //Dont need to include the .txt part
 
             int rowCount = 0;
             string line;
-            while ((line = readerNormal.ReadLine()) != null) // Read each line only once
+            while (! readerNormal.EndOfStream)
             {
+                line = readerNormal.ReadLine();
                 AddTile(line, rowCount);
                 rowCount++;
             }
@@ -55,8 +56,9 @@ namespace ConsoleSlayer_02
             rowCount = 0;
             StreamReader readerDecor = new StreamReader($"Maps/{MapName}/{MapName}_Decor.txt");
 
-            while ((line = readerDecor.ReadLine()) != null)
+            while (! readerDecor.EndOfStream)
             {
+                line = readerDecor.ReadLine();
                 AddTile(line, rowCount);
                 rowCount++;
             }
@@ -98,6 +100,8 @@ namespace ConsoleSlayer_02
             Map.Textures.Add(Texture.Plant_Spike, Content.Load<Texture2D>("Plant_Spike"));//D:07
             Map.Textures.Add(Texture.Plant_Tentacle, Content.Load<Texture2D>("Plant_Tentacle"));//D:08
             Map.Textures.Add(Texture.Ground_Skull, Content.Load<Texture2D>("Ground_Skull"));//D:09
+            //Spawn
+            Map.Textures.Add(Texture.Skull_Door, Content.Load<Texture2D>("skull_door"));//S:01
             #endregion
         }
         private static void AddTile(string line, int row)
@@ -121,16 +125,16 @@ namespace ConsoleSlayer_02
                             switch (type)
                             {
                                 case "01":
-                                    Map_Normal[i, row] = new Tile(position, Type.Road, Texture.RockRoad);
+                                    Map_Normal[row, i] = new Tile(position, Type.Road, Texture.RockRoad);
                                     break;
                                 case "02":
-                                    Map_Normal[i, row] = new Tile(position, Type.Wall, Texture.DoomBlock);
+                                    Map_Normal[row, i] = new Tile(position, Type.Wall, Texture.DoomBlock);
                                     break;
                                 case "03":
-                                    Map_Normal[i, row] = new Tile(position, Type.Lava, Texture.Lava);
+                                    Map_Normal[row, i] = new Tile(position, Type.Lava, Texture.Lava);
                                     break;
                                 case "04":
-                                    Map_Normal[i, row] = new Tile(position, Type.Wall, Texture.RockTile);
+                                    Map_Normal[row, i] = new Tile(position, Type.Wall, Texture.RockTile);
                                     break;
                             }
                             break;
@@ -139,36 +143,45 @@ namespace ConsoleSlayer_02
                             switch (type)
                             {
                                 case "01":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Ground_Bones);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Ground_Bones);
                                     break;
                                 case "02":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Ground_Bone);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Ground_Bone);
                                     break;
                                 case "03":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Plant_Eye);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Plant_Eye);
                                     break;
                                 case "04":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Ground_Rock2);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Ground_Rock2);
                                     break;
                                 case "05":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Ground_Rock);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Ground_Rock);
                                     break;
                                 case "06":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Plant_Sword);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Plant_Sword);
                                     break;
                                 case "07":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Plant_Spike);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Plant_Spike);
                                     break;
                                 case "08":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Plant_Tentacle);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Plant_Tentacle);
                                     break;
                                 case "09":
-                                    Map_Decor[i, row] = new Tile(position, Type.Decor, Texture.Ground_Skull);
+                                    Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.Ground_Skull);
                                     break;
                             }
                             break;
 
+                        case "0":
+                            Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.None);
+                            break;
                         case "S":
+                            Map_Normal[row, i] = new Tile(position, Type.Spawn, Texture.Skull_Door);
+                            Player.Position.Y = position.Y - 64;
+                            Player.Position.X = position.X - 32;
+                            Player.CurrentTile = Map_Normal[row, i];
+                            Player.Pos_I = row;
+                            Player.Pos_J = i;
                             break;
                         case "F":
                             break;
