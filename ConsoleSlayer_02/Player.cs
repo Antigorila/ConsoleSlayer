@@ -21,6 +21,14 @@ namespace ConsoleSlayer_02
         Walk_Left,
         Walk_Right,
     }
+    enum Direction
+    {
+        Left,
+        Right,
+        Up,
+        Down
+    }
+
     internal class Player
     {
         //TODO: Do a ui, add hp and stuff like this
@@ -33,9 +41,6 @@ namespace ConsoleSlayer_02
         private static KeyboardState previousKeyboardState = new KeyboardState();
         public static float Speed = 1f;
         public static Tile CurrentTile;
-        public static int Pos_I = 0;
-        public static int Pos_J = 0;
-        public static string Coordinates = string.Empty;
 
         public static void Die()
         {
@@ -52,188 +57,170 @@ namespace ConsoleSlayer_02
             Player.Textures.Add(Action.Walk_Left, Content.Load<Texture2D>("Walk_Left"));
             Player.Textures.Add(Action.Walk_Right, Content.Load<Texture2D>("Walk_Right"));
         }
+        private static bool IsRunning(KeyboardState keyboardState)
+        {
+            if (keyboardState.GetPressedKeys().Contains(Keys.LeftShift))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private static bool CanMove(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Left:
+                    if (Player.Position.X - 1 < - 64)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                case Direction.Right:
+                    if (Player.Position.X + 1 > (Map.Columns * Map.BlockSize) - 64)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                case Direction.Up:
+                    if (Player.Position.Y - 1 < - 64)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                case Direction.Down:
+                    if (Player.Position.Y + 1 > (Map.Rows * Map.BlockSize) - 120)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+            }
+            return false;
+        }
         public static void Update(GameTime gameTime)
         {
             KeyboardState _keyboardState = Keyboard.GetState();
             if (_keyboardState.GetPressedKeys().Length != 0)
             {
-                if (_keyboardState.GetPressedKeys().Contains(Keys.LeftShift))
+                if (_keyboardState.IsKeyDown(Keys.W) && Player.CanMove(Direction.Up))
                 {
-                    if (_keyboardState.GetPressedKeys().Length == 1)
+                    Tile prevTile = Player.CurrentTile;
+                    float FelsoFal = Player.CurrentTile.Position.Y - 64;
+                    if (Player.Position.Y < FelsoFal)
                     {
-                        Player.CurrentAction = Action.Idle;
+                        Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y() - 1, Player.CurrentTile.Get_X()];
+                    }
+
+                    if (Player.CurrentTile.Type == Type.Wall)
+                    {
+                        Player.CurrentTile = prevTile;
                     }
                     else
                     {
-                        if (_keyboardState.IsKeyDown(Keys.W))
+                        if (IsRunning(_keyboardState))
                         {
                             Player.Position.Y -= Speed * 2;
                             Player.CurrentAction = Action.Run_Left;
-
-                            float FelsoFal = Player.CurrentTile.Position.Y - 64;
-                            if (Player.Position.Y < FelsoFal)
-                            {
-                                DebugDump.Dump($"w");
-
-                                int i = (int)(Player.CurrentTile.Position.Y / 64);
-                                int j = (int)(Player.CurrentTile.Position.X / 64);
-
-
-                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                                Player.CurrentTile = Map.Map_Normal[i - 1, j];
-                                Coordinates = $"I: {i}, J: {j}";
-                            }
                         }
-                        if (_keyboardState.IsKeyDown(Keys.A))
+                        else
                         {
-                            Player.Position.X -= Speed * 2;
-                            Player.CurrentAction = Action.Run_Left;
-
-                            float BalFal = Player.CurrentTile.Position.X - 64;
-                            if (Player.Position.X < BalFal)
-                            {
-                                DebugDump.Dump($"a");
-
-
-                                int i = (int)(Player.CurrentTile.Position.Y / 64);
-                                int j = (int)(Player.CurrentTile.Position.X / 64);
-
-                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                                Player.CurrentTile = Map.Map_Normal[i, j - 1];
-                                Coordinates = $"I: {i}, J: {j}";
-
-                            }
-                        }
-                        if (_keyboardState.IsKeyDown(Keys.S))
-                        {
-                            Player.Position.Y += Speed * 2;
-                            Player.CurrentAction = Action.Run_Left;
-
-                            float AlsoFal = Player.CurrentTile.Position.Y;
-                            if (Player.Position.Y > AlsoFal)
-                            {
-
-                                int i = (int)(Player.CurrentTile.Position.Y / 64);
-                                int j = (int)(Player.CurrentTile.Position.X / 64);
-
-                                DebugDump.Dump($"s");
-
-
-                                Player.Pos_I++;
-                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                                Player.CurrentTile = Map.Map_Normal[i + 1, j];
-                                Coordinates = $"I: {i}, J: {j}";
-
-                            }
-                        }
-                        if (_keyboardState.IsKeyDown(Keys.D))
-                        {
-                            Player.Position.X += Speed * 2;
-                            Player.CurrentAction = Action.Run_Right;
-
-                            float JobbFal = Player.CurrentTile.Position.X;
-                            if (Player.Position.X > JobbFal)
-                            {
-                                int i = (int)(Player.CurrentTile.Position.Y / 64);
-                                int j = (int)(Player.CurrentTile.Position.X / 64);
-
-                                DebugDump.Dump($"d");
-
-
-                                Player.Pos_J++;
-                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                                Player.CurrentTile = Map.Map_Normal[i, j + 1];
-                                i = (int)(Player.CurrentTile.Position.Y / 64);
-                                j = (int)(Player.CurrentTile.Position.X / 64);
-
-
-                                Coordinates = $"I: {i}, J: {j}";
-
-                            }
+                            Player.Position.Y -= Speed;
+                            Player.CurrentAction = Action.Walk_Left;
                         }
                     }
                 }
-                else
+                if (_keyboardState.IsKeyDown(Keys.A) && Player.CanMove(Direction.Left))
                 {
-                    if (_keyboardState.IsKeyDown(Keys.W))
+                    Tile prevTile = Player.CurrentTile;
+                    float BalFal = Player.CurrentTile.Position.X - 64;
+                    if (Player.Position.X < BalFal)
                     {
-                        Player.Position.Y -= Speed;
-                        Player.CurrentAction = Action.Walk_Left;
+                        Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y(), Player.CurrentTile.Get_X() - 1];
+                    }
 
-                        float FelsoFal = Player.CurrentTile.Position.Y - 64;
-                        if (Player.Position.Y < FelsoFal)
+                    if (Player.CurrentTile.Type == Type.Wall)
+                    {
+                        Player.CurrentTile = prevTile;
+                    }
+                    else
+                    {
+                        if (IsRunning(_keyboardState))
                         {
-                            DebugDump.Dump($"w");
-
-                            int i = (int)(Player.CurrentTile.Position.Y / 64);
-                            int j = (int)(Player.CurrentTile.Position.X / 64);
-                            Player.Pos_I--;
-                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                            Player.CurrentTile = Map.Map_Normal[i - 1, j];
-
-                            Coordinates = $"I: {i}, J: {j}";
+                            Player.Position.X -= Speed * 2;
+                            Player.CurrentAction = Action.Run_Left;
+                        }
+                        else
+                        {
+                            Player.Position.X -= Speed;
+                            Player.CurrentAction = Action.Walk_Left;
                         }
                     }
-                    if (_keyboardState.IsKeyDown(Keys.A))
+                }
+                if (_keyboardState.IsKeyDown(Keys.S) && Player.CanMove(Direction.Down))
+                {
+                    Tile prevTile = Player.CurrentTile;
+                    float AlsoFal = Player.CurrentTile.Position.Y - 64;
+                    if (Player.Position.Y > AlsoFal)
                     {
-                        Player.Position.X -= Speed;
-                        Player.CurrentAction = Action.Walk_Left;
+                        Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y() + 1, Player.CurrentTile.Get_X()];
+                    }
 
-                        float BalFal = Player.CurrentTile.Position.X - 64;
-                        if (Player.Position.X < BalFal)
+                    if (Player.CurrentTile.Type == Type.Wall)
+                    {
+                        Player.CurrentTile = prevTile;
+                    }
+                    else
+                    {
+                        if (IsRunning(_keyboardState))
                         {
-                            DebugDump.Dump("a");
-
-                            int i = (int)(Player.CurrentTile.Position.Y / 64);
-                            int j = (int)(Player.CurrentTile.Position.X / 64);
-                            Player.Pos_J--;
-                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                            Player.CurrentTile = Map.Map_Normal[i, j - 1];
-                            Coordinates = $"I: {i}, J: {j}";
-
-
+                            Player.Position.Y += Speed * 2;
+                            Player.CurrentAction = Action.Run_Left;
+                        }
+                        else
+                        {
+                            Player.Position.Y += Speed;
+                            Player.CurrentAction = Action.Walk_Left;
                         }
                     }
-                    if (_keyboardState.IsKeyDown(Keys.S))
+                }
+                if (_keyboardState.IsKeyDown(Keys.D) && Player.CanMove(Direction.Right))
+                {
+                    Tile prevTile = Player.CurrentTile;
+                    float JobbFal = Player.CurrentTile.Position.X;
+                    if (Player.Position.X > JobbFal)
                     {
-                        Player.Position.Y += Speed;
-                        Player.CurrentAction = Action.Walk_Left;
-
-                        float AlsoFal = Player.CurrentTile.Position.Y;
-                        if (Player.Position.Y > AlsoFal)
-                        {
-                            DebugDump.Dump("s");
-
-                            int i = (int)(Player.CurrentTile.Position.Y / 64);
-                            int j = (int)(Player.CurrentTile.Position.X / 64);
-                            Player.Pos_I++;
-                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                            Player.CurrentTile = Map.Map_Normal[i + 1, j];
-                            Coordinates = $"I: {i}, J: {j}";
-
-                        }
+                        Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y(), Player.CurrentTile.Get_X() + 1];
                     }
-                    if (_keyboardState.IsKeyDown(Keys.D))
+
+                    if (Player.CurrentTile.Type == Type.Wall)
                     {
-                        Player.Position.X += Speed;
-                        Player.CurrentAction = Action.Walk_Right;
-
-                        float JobbFal = Player.CurrentTile.Position.X;
-                        if (Player.Position.X > JobbFal)
+                        Player.CurrentTile = prevTile;
+                    }
+                    else
+                    {
+                        if (IsRunning(_keyboardState))
                         {
-                            DebugDump.Dump("d");
-
-
-                            int i = (int)(Player.CurrentTile.Position.Y / 64);
-                            int j = (int)(Player.CurrentTile.Position.X / 64);
-
-                            Player.Pos_J++;
-                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
-                            Player.CurrentTile = Map.Map_Normal[i, j + 1];
-                            i = (int)(Player.CurrentTile.Position.Y / 64);
-                            j = (int)(Player.CurrentTile.Position.X / 64);
-                            Coordinates = $"I: {i}, J: {j}";
-
+                            Player.Position.X += Speed * 2;
+                            Player.CurrentAction = Action.Run_Right;
+                        }
+                        else
+                        {
+                            Player.Position.X += Speed;
+                            Player.CurrentAction = Action.Walk_Right;
                         }
                     }
                 }
@@ -256,27 +243,12 @@ namespace ConsoleSlayer_02
                 Player.CurrentAction = Action.Idle;
             }
             previousKeyboardState = _keyboardState;
-
-            if (Map.Map_Normal != null)
-            {
-                SetCurrentTileType(Map.Map_Normal, Player.Position, Map.BlockSize);
-            }
         }
         public static void Draw(SpriteBatch _spriteBatch)
         {
             //spriteBatch.DrawString(gameFont, "Text", new Vector2(0, 0), Color.Black);
 
             _spriteBatch.Draw(Player.Textures[Player.CurrentAction], Player.Position, Color.White);
-        }
-        public static void SetCurrentTileType(Tile[,] map, Vector2 playerPosition, float blockSize)
-        {
-            //MapWidth = Map.BlockSize * MapColumn
-            //MapHeight = Map.BlockSize * MapHeight
-
-            //MapWidth / Player.Position.X => i
-            //MapHeight / Player.Position.Y => j
-            //Normal[i,j]
-
         }
     }
 }
