@@ -180,8 +180,6 @@ namespace ConsoleSlayer_02
                             Player.Position.Y = position.Y - 64;
                             Player.Position.X = position.X - 32;
                             Player.CurrentTile = Map_Normal[row, i];
-                            Player.Pos_I = row;
-                            Player.Pos_J = i;
                             break;
                         case "F":
                             break;

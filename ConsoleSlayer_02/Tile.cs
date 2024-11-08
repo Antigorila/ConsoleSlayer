@@ -53,11 +53,13 @@ namespace ConsoleSlayer_02
                 Texture = Map.Textures[textureType];
             }
         }
-
-        public bool IsAtPosition(Vector2 playerPosition, float blockSize)
+        public int Get_X()
         {
-            return Position.X <= playerPosition.X && playerPosition.X < Position.X + blockSize &&
-                   Position.Y <= playerPosition.Y && playerPosition.Y < Position.Y + blockSize;
+            return (int)(this.Position.X / 64);
+        }
+        public int Get_Y()
+        {
+            return (int)(this.Position.Y / 64);
         }
     }
 }

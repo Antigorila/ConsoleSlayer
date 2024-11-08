@@ -92,7 +92,6 @@ namespace ConsoleSlayer_02
             _spriteBatch.Begin();
             _spriteBatch.DrawString(Font, "Ammo: " + Player.Ammo, new Vector2(5, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
             _spriteBatch.DrawString(Font, Player.Position.ToString(), new Vector2(350, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            _spriteBatch.DrawString(Font, Player.Coordinates, new Vector2(500, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
 
             if (Player.CurrentTile != null)
             {
