@@ -33,6 +33,9 @@ namespace ConsoleSlayer_02
         private static KeyboardState previousKeyboardState = new KeyboardState();
         public static float Speed = 1f;
         public static Tile CurrentTile;
+        public static int Pos_I = 0;
+        public static int Pos_J = 0;
+        public static string Coordinates = string.Empty;
 
         public static void Die()
         {
@@ -66,21 +69,87 @@ namespace ConsoleSlayer_02
                         {
                             Player.Position.Y -= Speed * 2;
                             Player.CurrentAction = Action.Run_Left;
+
+                            float FelsoFal = Player.CurrentTile.Position.Y - 64;
+                            if (Player.Position.Y < FelsoFal)
+                            {
+                                DebugDump.Dump($"w");
+
+                                int i = (int)(Player.CurrentTile.Position.Y / 64);
+                                int j = (int)(Player.CurrentTile.Position.X / 64);
+
+
+                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                                Player.CurrentTile = Map.Map_Normal[i - 1, j];
+                                Coordinates = $"I: {i}, J: {j}";
+                            }
                         }
                         if (_keyboardState.IsKeyDown(Keys.A))
                         {
                             Player.Position.X -= Speed * 2;
                             Player.CurrentAction = Action.Run_Left;
+
+                            float BalFal = Player.CurrentTile.Position.X - 64;
+                            if (Player.Position.X < BalFal)
+                            {
+                                DebugDump.Dump($"a");
+
+
+                                int i = (int)(Player.CurrentTile.Position.Y / 64);
+                                int j = (int)(Player.CurrentTile.Position.X / 64);
+
+                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                                Player.CurrentTile = Map.Map_Normal[i, j - 1];
+                                Coordinates = $"I: {i}, J: {j}";
+
+                            }
                         }
                         if (_keyboardState.IsKeyDown(Keys.S))
                         {
                             Player.Position.Y += Speed * 2;
                             Player.CurrentAction = Action.Run_Left;
+
+                            float AlsoFal = Player.CurrentTile.Position.Y;
+                            if (Player.Position.Y > AlsoFal)
+                            {
+
+                                int i = (int)(Player.CurrentTile.Position.Y / 64);
+                                int j = (int)(Player.CurrentTile.Position.X / 64);
+
+                                DebugDump.Dump($"s");
+
+
+                                Player.Pos_I++;
+                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                                Player.CurrentTile = Map.Map_Normal[i + 1, j];
+                                Coordinates = $"I: {i}, J: {j}";
+
+                            }
                         }
                         if (_keyboardState.IsKeyDown(Keys.D))
                         {
                             Player.Position.X += Speed * 2;
                             Player.CurrentAction = Action.Run_Right;
+
+                            float JobbFal = Player.CurrentTile.Position.X;
+                            if (Player.Position.X > JobbFal)
+                            {
+                                int i = (int)(Player.CurrentTile.Position.Y / 64);
+                                int j = (int)(Player.CurrentTile.Position.X / 64);
+
+                                DebugDump.Dump($"d");
+
+
+                                Player.Pos_J++;
+                                //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                                Player.CurrentTile = Map.Map_Normal[i, j + 1];
+                                i = (int)(Player.CurrentTile.Position.Y / 64);
+                                j = (int)(Player.CurrentTile.Position.X / 64);
+
+
+                                Coordinates = $"I: {i}, J: {j}";
+
+                            }
                         }
                     }
                 }
@@ -90,21 +159,82 @@ namespace ConsoleSlayer_02
                     {
                         Player.Position.Y -= Speed;
                         Player.CurrentAction = Action.Walk_Left;
+
+                        float FelsoFal = Player.CurrentTile.Position.Y - 64;
+                        if (Player.Position.Y < FelsoFal)
+                        {
+                            DebugDump.Dump($"w");
+
+                            int i = (int)(Player.CurrentTile.Position.Y / 64);
+                            int j = (int)(Player.CurrentTile.Position.X / 64);
+                            Player.Pos_I--;
+                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                            Player.CurrentTile = Map.Map_Normal[i - 1, j];
+
+                            Coordinates = $"I: {i}, J: {j}";
+                        }
                     }
                     if (_keyboardState.IsKeyDown(Keys.A))
                     {
                         Player.Position.X -= Speed;
                         Player.CurrentAction = Action.Walk_Left;
+
+                        float BalFal = Player.CurrentTile.Position.X - 64;
+                        if (Player.Position.X < BalFal)
+                        {
+                            DebugDump.Dump("a");
+
+                            int i = (int)(Player.CurrentTile.Position.Y / 64);
+                            int j = (int)(Player.CurrentTile.Position.X / 64);
+                            Player.Pos_J--;
+                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                            Player.CurrentTile = Map.Map_Normal[i, j - 1];
+                            Coordinates = $"I: {i}, J: {j}";
+
+
+                        }
                     }
                     if (_keyboardState.IsKeyDown(Keys.S))
                     {
                         Player.Position.Y += Speed;
                         Player.CurrentAction = Action.Walk_Left;
+
+                        float AlsoFal = Player.CurrentTile.Position.Y;
+                        if (Player.Position.Y > AlsoFal)
+                        {
+                            DebugDump.Dump("s");
+
+                            int i = (int)(Player.CurrentTile.Position.Y / 64);
+                            int j = (int)(Player.CurrentTile.Position.X / 64);
+                            Player.Pos_I++;
+                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                            Player.CurrentTile = Map.Map_Normal[i + 1, j];
+                            Coordinates = $"I: {i}, J: {j}";
+
+                        }
                     }
                     if (_keyboardState.IsKeyDown(Keys.D))
                     {
                         Player.Position.X += Speed;
                         Player.CurrentAction = Action.Walk_Right;
+
+                        float JobbFal = Player.CurrentTile.Position.X;
+                        if (Player.Position.X > JobbFal)
+                        {
+                            DebugDump.Dump("d");
+
+
+                            int i = (int)(Player.CurrentTile.Position.Y / 64);
+                            int j = (int)(Player.CurrentTile.Position.X / 64);
+
+                            Player.Pos_J++;
+                            //Player.CurrentTile = Map.Map_Normal[Player.Pos_I, Player.Pos_J];
+                            Player.CurrentTile = Map.Map_Normal[i, j + 1];
+                            i = (int)(Player.CurrentTile.Position.Y / 64);
+                            j = (int)(Player.CurrentTile.Position.X / 64);
+                            Coordinates = $"I: {i}, J: {j}";
+
+                        }
                     }
                 }
 
@@ -140,17 +270,13 @@ namespace ConsoleSlayer_02
         }
         public static void SetCurrentTileType(Tile[,] map, Vector2 playerPosition, float blockSize)
         {
-            int tileX = (int)(playerPosition.X / blockSize);
-            int tileY = (int)(playerPosition.Y / blockSize);
+            //MapWidth = Map.BlockSize * MapColumn
+            //MapHeight = Map.BlockSize * MapHeight
 
-            if (tileX >= 0 && tileX < map.GetLength(0) && tileY >= 0 && tileY < map.GetLength(1))
-            {
-                Player.CurrentTile = map[tileX, tileY];
-            }
-            else
-            {
-                Player.CurrentTile = null;
-            }
+            //MapWidth / Player.Position.X => i
+            //MapHeight / Player.Position.Y => j
+            //Normal[i,j]
+
         }
     }
 }

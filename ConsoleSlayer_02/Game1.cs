@@ -67,22 +67,23 @@ namespace ConsoleSlayer_02
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin(transformMatrix: _camera.Transform);
-            for (int i = 0; i < Map.Columns; i++)
+
+            Vector2 position = Vector2.Zero;
+            for (int i = 0; i < Map.Rows; i++)
             {
-                for (int j = 0; j < Map.Rows; j++)
+                for (int j = 0; j < Map.Columns; j++)
                 {
 
+                    _spriteBatch.Draw(Map.Map_Normal[i, j].Texture, position, Color.White);
+                    if (Map.Map_Decor[i, j].TextureType != Texture.None)
+                    {
+                        _spriteBatch.Draw(Map.Map_Decor[i, j].Texture, position, Color.White);
+                    }
 
-                    _spriteBatch.Draw(Map.Map_Normal[i, j].Texture, Map.Map_Normal[i, j].Position, Color.White);
-                    _spriteBatch.DrawString(Font, $"{i}:{j}||", Map.Map_Normal[i, j].Position, Color.White);
-
-
-                    //DebugDump.Dump("Dekor");
-                    //DebugDump.Dump(Map.Map_Decor[i, j].Texture);
-                    //DebugDump.Dump(Map.Map_Decor[i, j].Position);
-
-                    //_spriteBatch.Draw(Map.Map_Decor[i, j].Texture, Map.Map_Decor[i, j].Position, Color.White);
+                    position.X += Map.BlockSize;
                 }
+                position.X = 0;
+                position.Y += Map.BlockSize;
             }
 
             Player.Draw(_spriteBatch);
@@ -90,12 +91,13 @@ namespace ConsoleSlayer_02
 
             _spriteBatch.Begin();
             _spriteBatch.DrawString(Font, "Ammo: " + Player.Ammo, new Vector2(5, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            _spriteBatch.DrawString(Font, "Col: " + Map.Columns, new Vector2(150, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            _spriteBatch.DrawString(Font, "Row: " + Map.Rows, new Vector2(250, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            //if (Player.CurrentTile != null)
-            //{
-            //    _spriteBatch.DrawString(Font, "TileType: " + Player.CurrentTile.Type, new Vector2(150, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            //}
+            _spriteBatch.DrawString(Font, Player.Position.ToString(), new Vector2(350, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+            _spriteBatch.DrawString(Font, Player.Coordinates, new Vector2(500, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+
+            if (Player.CurrentTile != null)
+            {
+                _spriteBatch.DrawString(Font, "TileType: " + Player.CurrentTile.Type, new Vector2(150, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+            }
             _spriteBatch.End();
 
 
