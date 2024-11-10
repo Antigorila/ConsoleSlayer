@@ -16,7 +16,9 @@ namespace ConsoleSlayer_02
         Road,
         Spawn,
         Finish,
-        Lava
+        Lava,
+        Gate,
+        Pickup
     }
     enum Texture
     {

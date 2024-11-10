@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ConsoleSlayer_02
 {
@@ -41,7 +42,6 @@ namespace ConsoleSlayer_02
         private static KeyboardState previousKeyboardState = new KeyboardState();
         public static float Speed = 1f;
         public static Tile CurrentTile;
-
         public static void Die()
         {
             IsDead = true;
@@ -57,6 +57,8 @@ namespace ConsoleSlayer_02
             Player.Textures.Add(Action.Walk_Left, Content.Load<Texture2D>("Walk_Left"));
             Player.Textures.Add(Action.Walk_Right, Content.Load<Texture2D>("Walk_Right"));
         }
+
+        #region Move Player
         private static bool IsRunning(KeyboardState keyboardState)
         {
             if (keyboardState.GetPressedKeys().Contains(Keys.LeftShift))
@@ -73,7 +75,7 @@ namespace ConsoleSlayer_02
             switch (direction)
             {
                 case Direction.Left:
-                    if (Player.Position.X - 1 < - 64)
+                    if (Player.Position.X - 1 < -64)
                     {
                         return false;
                     }
@@ -91,7 +93,7 @@ namespace ConsoleSlayer_02
                         return true;
                     }
                 case Direction.Up:
-                    if (Player.Position.Y - 1 < - 64)
+                    if (Player.Position.Y - 1 < -64)
                     {
                         return false;
                     }
@@ -111,144 +113,200 @@ namespace ConsoleSlayer_02
             }
             return false;
         }
-        public static void Update(GameTime gameTime)
+        private static void MovePlayer(Direction direction, KeyboardState keyboardState)
         {
-            KeyboardState _keyboardState = Keyboard.GetState();
-            if (_keyboardState.GetPressedKeys().Length != 0)
+            Tile prevTile = Player.CurrentTile;
+            float speed = IsRunning(keyboardState) ? Speed * 2 : Speed;
+            Vector2 newPosition = Player.Position;
+
+            switch (direction)
             {
-                if (_keyboardState.IsKeyDown(Keys.W) && Player.CanMove(Direction.Up))
-                {
-                    Tile prevTile = Player.CurrentTile;
-                    float FelsoFal = Player.CurrentTile.Position.Y - 64;
-                    if (Player.Position.Y < FelsoFal)
+                case Direction.Up:
+                    newPosition.Y -= speed;
+                    if (Player.Position.Y < Player.CurrentTile.Position.Y - 64)
                     {
                         Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y() - 1, Player.CurrentTile.Get_X()];
                     }
+                    break;
 
-                    if (Player.CurrentTile.Type == Type.Wall)
+                case Direction.Down:
+                    newPosition.Y += speed;
+                    if (Player.Position.Y > Player.CurrentTile.Position.Y - 64)
                     {
-                        Player.CurrentTile = prevTile;
-                    }
-                    else
-                    {
-                        if (IsRunning(_keyboardState))
+                        try
                         {
-                            Player.Position.Y -= Speed * 2;
-                            Player.CurrentAction = Action.Run_Left;
+                            Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y() + 1, Player.CurrentTile.Get_X()];
                         }
-                        else
+                        catch (System.IndexOutOfRangeException)
                         {
-                            Player.Position.Y -= Speed;
-                            Player.CurrentAction = Action.Walk_Left;
+                            Player.CurrentTile = prevTile;
                         }
                     }
-                }
-                if (_keyboardState.IsKeyDown(Keys.A) && Player.CanMove(Direction.Left))
-                {
-                    Tile prevTile = Player.CurrentTile;
-                    float BalFal = Player.CurrentTile.Position.X - 64;
-                    if (Player.Position.X < BalFal)
+                    break;
+
+                case Direction.Left:
+                    newPosition.X -= speed;
+                    if (Player.Position.X < Player.CurrentTile.Position.X - 64)
                     {
                         Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y(), Player.CurrentTile.Get_X() - 1];
                     }
+                    break;
 
-                    if (Player.CurrentTile.Type == Type.Wall)
-                    {
-                        Player.CurrentTile = prevTile;
-                    }
-                    else
-                    {
-                        if (IsRunning(_keyboardState))
-                        {
-                            Player.Position.X -= Speed * 2;
-                            Player.CurrentAction = Action.Run_Left;
-                        }
-                        else
-                        {
-                            Player.Position.X -= Speed;
-                            Player.CurrentAction = Action.Walk_Left;
-                        }
-                    }
-                }
-                if (_keyboardState.IsKeyDown(Keys.S) && Player.CanMove(Direction.Down))
-                {
-                    Tile prevTile = Player.CurrentTile;
-                    float AlsoFal = Player.CurrentTile.Position.Y - 64;
-                    if (Player.Position.Y > AlsoFal)
-                    {
-                        Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y() + 1, Player.CurrentTile.Get_X()];
-                    }
-
-                    if (Player.CurrentTile.Type == Type.Wall)
-                    {
-                        Player.CurrentTile = prevTile;
-                    }
-                    else
-                    {
-                        if (IsRunning(_keyboardState))
-                        {
-                            Player.Position.Y += Speed * 2;
-                            Player.CurrentAction = Action.Run_Left;
-                        }
-                        else
-                        {
-                            Player.Position.Y += Speed;
-                            Player.CurrentAction = Action.Walk_Left;
-                        }
-                    }
-                }
-                if (_keyboardState.IsKeyDown(Keys.D) && Player.CanMove(Direction.Right))
-                {
-                    Tile prevTile = Player.CurrentTile;
-                    float JobbFal = Player.CurrentTile.Position.X;
-                    if (Player.Position.X > JobbFal)
+                case Direction.Right:
+                    newPosition.X += speed;
+                    if (Player.Position.X > Player.CurrentTile.Position.X)
                     {
                         Player.CurrentTile = Map.Map_Normal[Player.CurrentTile.Get_Y(), Player.CurrentTile.Get_X() + 1];
                     }
+                    break;
+            }
 
-                    if (Player.CurrentTile.Type == Type.Wall)
-                    {
-                        Player.CurrentTile = prevTile;
-                    }
-                    else
-                    {
-                        if (IsRunning(_keyboardState))
-                        {
-                            Player.Position.X += Speed * 2;
-                            Player.CurrentAction = Action.Run_Right;
-                        }
-                        else
-                        {
-                            Player.Position.X += Speed;
-                            Player.CurrentAction = Action.Walk_Right;
-                        }
-                    }
-                }
-
-                if (_keyboardState.IsKeyDown(Keys.Space) && !previousKeyboardState.IsKeyDown(Keys.Space))
-                {
-                    Player.Ammo--;
-                    if (_keyboardState.IsKeyDown(Keys.D))
-                    {
-                        Player.CurrentAction = Action.Shot_Right;
-                    }
-                    else
-                    {
-                        Player.CurrentAction = Action.Shot_Left;
-                    }
-                }
+            if (Player.CurrentTile.Type == Type.Wall)
+            {
+                Player.CurrentTile = prevTile;
             }
             else
             {
-                Player.CurrentAction = Action.Idle;
+                Player.Position = newPosition;
+                UpdateAction(direction, IsRunning(keyboardState));
             }
-            previousKeyboardState = _keyboardState;
         }
-        public static void Draw(SpriteBatch _spriteBatch)
+
+        #endregion
+
+        private static void UpdateAction(Direction direction, bool isRunning)
+        {
+            switch (direction)
+            {
+                case Direction.Up:
+                case Direction.Left:
+                    Player.CurrentAction = isRunning ? Action.Run_Left : Action.Walk_Left;
+                    break;
+                case Direction.Down:
+                case Direction.Right:
+                    Player.CurrentAction = isRunning ? Action.Run_Right : Action.Walk_Right;
+                    break;
+            }
+        }
+
+        private static void TakeDamage(int ammount)
+        {
+            if (Player.HP - ammount > 0)
+            {
+                Player.HP -= ammount;
+            }
+            else
+            {
+                Player.Die();
+            }
+        }
+
+        private static void Shoot(KeyboardState keyboardState)
+        {
+            Player.Ammo--;
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                Player.CurrentAction = Action.Shot_Right;
+            }
+            else
+            {
+                Player.CurrentAction = Action.Shot_Left;
+            }
+        }
+
+        public static void Update(GameTime gameTime)
+        {
+            if (Player.IsDead)
+            {
+                Player.CurrentAction = Action.Dead;
+            }
+            else
+            {
+                KeyboardState _keyboardState = Keyboard.GetState();
+
+                if (_keyboardState.GetPressedKeys().Length != 0)
+                {
+                    if (_keyboardState.IsKeyDown(Keys.W) && CanMove(Direction.Up))
+                    {
+                        MovePlayer(Direction.Up, _keyboardState);
+                    }
+                    if (_keyboardState.IsKeyDown(Keys.S) && CanMove(Direction.Down))
+                    {
+                        MovePlayer(Direction.Down, _keyboardState);
+                    }
+                    if (_keyboardState.IsKeyDown(Keys.A) && CanMove(Direction.Left))
+                    {
+                        MovePlayer(Direction.Left, _keyboardState);
+                    }
+                    if (_keyboardState.IsKeyDown(Keys.D) && CanMove(Direction.Right))
+                    {
+                        MovePlayer(Direction.Right, _keyboardState);
+                    }
+
+                    if (_keyboardState.IsKeyDown(Keys.Space) && !previousKeyboardState.IsKeyDown(Keys.Space))
+                    {
+                        Shoot(_keyboardState);
+                    }
+                }
+                else
+                {
+                    Player.CurrentAction = Action.Idle;
+                }
+
+                if (Player.CurrentTile != null)
+                {
+                    //You can add here how the player character should react when it touches other tiles
+                    switch (Player.CurrentTile.Type)
+                    {
+                        case Type.None:
+                            break;
+                        case Type.Decor:
+                            break;
+                        case Type.Wall:
+                            break;
+                        case Type.Road:
+                            break;
+                        case Type.Spawn:
+                            break;
+                        case Type.Finish:
+                            break;
+                        case Type.Lava:
+                            //Player.TakeDamage(1);
+                            break;
+                        case Type.Gate:
+                            break;
+                        case Type.Pickup:
+                            break;
+                    }
+                }
+
+                previousKeyboardState = _keyboardState;
+            }
+
+        }
+
+        public static void DrawTransform(SpriteBatch _spriteBatch)
         {
             //spriteBatch.DrawString(gameFont, "Text", new Vector2(0, 0), Color.Black);
 
             _spriteBatch.Draw(Player.Textures[Player.CurrentAction], Player.Position, Color.White);
+        }
+
+        public static void Draw(SpriteBatch _spriteBatch, SpriteFont Font, GraphicsDevice GraphicsDevice)
+        {
+            //spriteBatch.DrawString(gameFont, "Text", new Vector2(0, 0), Color.Black);
+
+            if (Player.IsDead)
+            {
+                GraphicsDevice.Clear(Color.Black);
+                _spriteBatch.DrawString(Font, "Duty ends only in death...\nAnd so your duty has come to an end now...", new Vector2(10,10), Color.White);
+            }
+            else
+            {
+                _spriteBatch.DrawString(Font, "Ammo: " + Player.Ammo, new Vector2(5, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+                _spriteBatch.DrawString(Font, "Health: " + Player.HP, new Vector2(150, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+                _spriteBatch.DrawString(Font, Player.Position.ToString(), new Vector2(350, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+            }
         }
     }
 }

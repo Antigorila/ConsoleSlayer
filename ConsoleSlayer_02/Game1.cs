@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 
 namespace ConsoleSlayer_02
 {
@@ -10,8 +12,11 @@ namespace ConsoleSlayer_02
         private SpriteBatch _spriteBatch;
         private Camera _camera;
         private SpriteFont Font;
-
-
+        private Dictionary<DemonActions, Texture2D> BlackWerewolfTextures;
+        private Dictionary<DemonActions, Texture2D> KarasuTextures;
+        private Dictionary<DemonActions, Texture2D> SkeletonSpearman;
+        private Dictionary<DemonActions, Texture2D> SkeletonWarrior;
+        private List<Demon> Demons;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -21,7 +26,6 @@ namespace ConsoleSlayer_02
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             _camera = new Camera(730 - 64 / 2, 380 - 64 / 2);
             Player.Position = new Vector2(0, 0);
             DebugDump.NewDump();
@@ -35,7 +39,72 @@ namespace ConsoleSlayer_02
             Map.LoadTextures(Content);
             Player.LoadTextures(Content);
 
-            // TODO: use this.Content to load your game content here
+            #region Demon actions load
+            BlackWerewolfTextures = new Dictionary<DemonActions, Texture2D>();
+
+            BlackWerewolfTextures.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("Wolf_Attack_Left"));
+            BlackWerewolfTextures.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("Wolf_Attack_Right"));
+            BlackWerewolfTextures.Add(DemonActions.Dead, Content.Load<Texture2D>("Wolf_Dead"));
+            BlackWerewolfTextures.Add(DemonActions.Run_Left, Content.Load<Texture2D>("Wolf_Run_Left"));
+            BlackWerewolfTextures.Add(DemonActions.Run_Right, Content.Load<Texture2D>("Wolf_Run_Right"));
+
+            KarasuTextures = new Dictionary<DemonActions, Texture2D>();
+
+            KarasuTextures.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("Karasu_Attack_Left"));
+            KarasuTextures.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("Karasu_Attack_Right"));
+            KarasuTextures.Add(DemonActions.Dead, Content.Load<Texture2D>("Karasu_Dead"));
+            KarasuTextures.Add(DemonActions.Run_Left, Content.Load<Texture2D>("Karasu_Run_Left"));
+            KarasuTextures.Add(DemonActions.Run_Right, Content.Load<Texture2D>("Karasu_Run_Right"));
+
+            SkeletonSpearman = new Dictionary<DemonActions, Texture2D>();
+
+            SkeletonSpearman.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("SkeletonSpearman_Attack_Left"));
+            SkeletonSpearman.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("SkeletonSpearman_Attack_Right"));
+            SkeletonSpearman.Add(DemonActions.Dead, Content.Load<Texture2D>("SkeletonSpearman_Dead"));
+            SkeletonSpearman.Add(DemonActions.Run_Left, Content.Load<Texture2D>("SkeletonSpearman_Run_Left"));
+            SkeletonSpearman.Add(DemonActions.Run_Right, Content.Load<Texture2D>("SkeletonSpearman_Run_Right"));
+
+
+            SkeletonWarrior = new Dictionary<DemonActions, Texture2D>();
+
+            SkeletonWarrior.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("SkeletonWarrior_Attack_Left"));
+            SkeletonWarrior.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("SkeletonWarrior_Attack_Right"));
+            SkeletonWarrior.Add(DemonActions.Dead, Content.Load<Texture2D>("SkeletonWarrior_Dead"));
+            SkeletonWarrior.Add(DemonActions.Run_Left, Content.Load<Texture2D>("SkeletonWarrior_Run_Left"));
+            SkeletonWarrior.Add(DemonActions.Run_Right, Content.Load<Texture2D>("SkeletonWarrior_Run_Right"));
+
+            #endregion
+        }
+        private void IniDemons()
+        {
+            Demons = new List<Demon>();
+            Random rng = new Random();
+            for (int i = 0; i < rng.Next(10, 51); i++)
+            {
+                DemonType demonType = (DemonType)rng.Next(0, 5);
+                switch (demonType)
+                {
+                    case DemonType.Karasu:
+                        Demons.Add(new Demon(DemonType.Karasu, KarasuTextures));
+                        break;
+                    case DemonType.SkeletonSpearman:
+                        Demons.Add(new Demon(DemonType.SkeletonSpearman, SkeletonSpearman));
+                        break;
+                    case DemonType.SkeletonWarrior:
+                        Demons.Add(new Demon(DemonType.SkeletonWarrior, SkeletonWarrior));
+                        break;
+                    case DemonType.BlackWerewolf:
+                        Demons.Add(new Demon(DemonType.BlackWerewolf, BlackWerewolfTextures));
+                        break;
+                }
+            }
+        }
+        private void UpdateDemons(GameTime gameTime)
+        {
+            for (int i = 0; i < Demons.Count; i++)
+            {
+                Demons[i].Update(gameTime);
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -59,6 +128,15 @@ namespace ConsoleSlayer_02
                 Map.InitializeMap("Map1");
             }
 
+            if (Demons == null)
+            {
+                IniDemons();
+            }
+            else
+            {
+                UpdateDemons(gameTime);
+            }
+
             base.Update(gameTime);
         }
 
@@ -67,13 +145,12 @@ namespace ConsoleSlayer_02
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin(transformMatrix: _camera.Transform);
-
+            #region Transform
             Vector2 position = Vector2.Zero;
             for (int i = 0; i < Map.Rows; i++)
             {
                 for (int j = 0; j < Map.Columns; j++)
                 {
-
                     _spriteBatch.Draw(Map.Map_Normal[i, j].Texture, position, Color.White);
                     if (Map.Map_Decor[i, j].TextureType != Texture.None)
                     {
@@ -86,17 +163,24 @@ namespace ConsoleSlayer_02
                 position.Y += Map.BlockSize;
             }
 
-            Player.Draw(_spriteBatch);
+            Player.DrawTransform(_spriteBatch);
+
+            if (Demons.Count > 0)
+            {
+                for (int i = 0; i < Demons.Count; i++)
+                {
+                    Demons[i].Draw(_spriteBatch);
+                }
+            }
+            #endregion
             _spriteBatch.End();
 
-            _spriteBatch.Begin();
-            _spriteBatch.DrawString(Font, "Ammo: " + Player.Ammo, new Vector2(5, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            _spriteBatch.DrawString(Font, Player.Position.ToString(), new Vector2(350, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+            //------------------
 
-            if (Player.CurrentTile != null)
-            {
-                _spriteBatch.DrawString(Font, "TileType: " + Player.CurrentTile.Type, new Vector2(150, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
-            }
+            _spriteBatch.Begin();
+            #region Still
+            Player.Draw(_spriteBatch, Font, GraphicsDevice);
+            #endregion
             _spriteBatch.End();
 
 

@@ -83,7 +83,6 @@ namespace ConsoleSlayer_02
         public static void LoadTextures(ContentManager Content)
         {
             #region Map Animation Load
-            //S:00 will be the spawn
             //F:00 will be the finish
             //Tiles
             Map.Textures.Add(Texture.RockRoad, Content.Load<Texture2D>("RockRoad"));//T:01
@@ -121,6 +120,7 @@ namespace ConsoleSlayer_02
 
                     switch (flag)
                     {
+                        //Tile
                         case "T":
                             switch (type)
                             {
@@ -139,6 +139,7 @@ namespace ConsoleSlayer_02
                             }
                             break;
 
+                        //Decor
                         case "D":
                             switch (type)
                             {
@@ -172,16 +173,25 @@ namespace ConsoleSlayer_02
                             }
                             break;
 
+                        //Decor none
                         case "0":
                             Map_Decor[row, i] = new Tile(position, Type.Decor, Texture.None);
                             break;
+                        //Spawn
                         case "S":
                             Map_Normal[row, i] = new Tile(position, Type.Spawn, Texture.Skull_Door);
                             Player.Position.Y = position.Y - 64;
                             Player.Position.X = position.X - 32;
                             Player.CurrentTile = Map_Normal[row, i];
                             break;
+                        //Finish
                         case "F":
+                            break;
+                        //Pickup
+                        case "P":
+                            break;
+                        //Gate
+                        case "G":
                             break;
                     }
                 }
