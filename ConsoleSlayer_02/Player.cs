@@ -42,6 +42,7 @@ namespace ConsoleSlayer_02
         private static KeyboardState previousKeyboardState = new KeyboardState();
         public static float Speed = 1f;
         public static Tile CurrentTile;
+        public static string Message = string.Empty;
         public static void Die()
         {
             IsDead = true;
@@ -303,9 +304,18 @@ namespace ConsoleSlayer_02
             }
             else
             {
+                #region Draw "HUD"
+                int hudHeight = Font.LineSpacing + 10;
+                Rectangle hudBackground = new Rectangle(0, GraphicsDevice.Viewport.Height - hudHeight, GraphicsDevice.Viewport.Width, hudHeight);
+                Texture2D blackTexture = new Texture2D(GraphicsDevice, 1, 1);
+                blackTexture.SetData(new[] { Color.Black });
+                _spriteBatch.Draw(blackTexture, hudBackground, Color.Black * 0.6f);
+                #endregion
+
                 _spriteBatch.DrawString(Font, "Ammo: " + Player.Ammo, new Vector2(5, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
                 _spriteBatch.DrawString(Font, "Health: " + Player.HP, new Vector2(150, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
                 _spriteBatch.DrawString(Font, Player.Position.ToString(), new Vector2(350, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
+                _spriteBatch.DrawString(Font, "Msg: " + Message, new Vector2(550, GraphicsDevice.Viewport.Height - Font.LineSpacing), Color.White);
             }
         }
     }

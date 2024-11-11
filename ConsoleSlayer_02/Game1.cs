@@ -3,20 +3,25 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleSlayer_02
 {
+    enum GameSession
+    {
+        InGame,
+        Menu,
+    }
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Camera _camera;
         private SpriteFont Font;
-        private Dictionary<DemonActions, Texture2D> BlackWerewolfTextures;
-        private Dictionary<DemonActions, Texture2D> KarasuTextures;
-        private Dictionary<DemonActions, Texture2D> SkeletonSpearman;
-        private Dictionary<DemonActions, Texture2D> SkeletonWarrior;
-        private List<Demon> Demons;
+        private GameSession _session;
+        private KeyboardState currentKeyboardState;
+        private KeyboardState previousKeyboardState;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -29,6 +34,7 @@ namespace ConsoleSlayer_02
             _camera = new Camera(730 - 64 / 2, 380 - 64 / 2);
             Player.Position = new Vector2(0, 0);
             DebugDump.NewDump();
+            _session = GameSession.Menu;
             base.Initialize();
         }
 
@@ -38,80 +44,19 @@ namespace ConsoleSlayer_02
             Font = Content.Load<SpriteFont>("Silkscreen-Regular");
             Map.LoadTextures(Content);
             Player.LoadTextures(Content);
-
-            #region Demon actions load
-            BlackWerewolfTextures = new Dictionary<DemonActions, Texture2D>();
-
-            BlackWerewolfTextures.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("Wolf_Attack_Left"));
-            BlackWerewolfTextures.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("Wolf_Attack_Right"));
-            BlackWerewolfTextures.Add(DemonActions.Dead, Content.Load<Texture2D>("Wolf_Dead"));
-            BlackWerewolfTextures.Add(DemonActions.Run_Left, Content.Load<Texture2D>("Wolf_Run_Left"));
-            BlackWerewolfTextures.Add(DemonActions.Run_Right, Content.Load<Texture2D>("Wolf_Run_Right"));
-
-            KarasuTextures = new Dictionary<DemonActions, Texture2D>();
-
-            KarasuTextures.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("Karasu_Attack_Left"));
-            KarasuTextures.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("Karasu_Attack_Right"));
-            KarasuTextures.Add(DemonActions.Dead, Content.Load<Texture2D>("Karasu_Dead"));
-            KarasuTextures.Add(DemonActions.Run_Left, Content.Load<Texture2D>("Karasu_Run_Left"));
-            KarasuTextures.Add(DemonActions.Run_Right, Content.Load<Texture2D>("Karasu_Run_Right"));
-
-            SkeletonSpearman = new Dictionary<DemonActions, Texture2D>();
-
-            SkeletonSpearman.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("SkeletonSpearman_Attack_Left"));
-            SkeletonSpearman.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("SkeletonSpearman_Attack_Right"));
-            SkeletonSpearman.Add(DemonActions.Dead, Content.Load<Texture2D>("SkeletonSpearman_Dead"));
-            SkeletonSpearman.Add(DemonActions.Run_Left, Content.Load<Texture2D>("SkeletonSpearman_Run_Left"));
-            SkeletonSpearman.Add(DemonActions.Run_Right, Content.Load<Texture2D>("SkeletonSpearman_Run_Right"));
-
-
-            SkeletonWarrior = new Dictionary<DemonActions, Texture2D>();
-
-            SkeletonWarrior.Add(DemonActions.Attack_Left, Content.Load<Texture2D>("SkeletonWarrior_Attack_Left"));
-            SkeletonWarrior.Add(DemonActions.Attack_Right, Content.Load<Texture2D>("SkeletonWarrior_Attack_Right"));
-            SkeletonWarrior.Add(DemonActions.Dead, Content.Load<Texture2D>("SkeletonWarrior_Dead"));
-            SkeletonWarrior.Add(DemonActions.Run_Left, Content.Load<Texture2D>("SkeletonWarrior_Run_Left"));
-            SkeletonWarrior.Add(DemonActions.Run_Right, Content.Load<Texture2D>("SkeletonWarrior_Run_Right"));
-
-            #endregion
+            DemonController.LoadDemonTextures(Content);
         }
-        private void IniDemons()
+        
+        private bool IsKeyPressed(Keys key)
         {
-            Demons = new List<Demon>();
-            Random rng = new Random();
-            for (int i = 0; i < rng.Next(10, 51); i++)
-            {
-                DemonType demonType = (DemonType)rng.Next(0, 5);
-                switch (demonType)
-                {
-                    case DemonType.Karasu:
-                        Demons.Add(new Demon(DemonType.Karasu, KarasuTextures));
-                        break;
-                    case DemonType.SkeletonSpearman:
-                        Demons.Add(new Demon(DemonType.SkeletonSpearman, SkeletonSpearman));
-                        break;
-                    case DemonType.SkeletonWarrior:
-                        Demons.Add(new Demon(DemonType.SkeletonWarrior, SkeletonWarrior));
-                        break;
-                    case DemonType.BlackWerewolf:
-                        Demons.Add(new Demon(DemonType.BlackWerewolf, BlackWerewolfTextures));
-                        break;
-                }
-            }
-        }
-        private void UpdateDemons(GameTime gameTime)
-        {
-            for (int i = 0; i < Demons.Count; i++)
-            {
-                Demons[i].Update(gameTime);
-            }
+            return currentKeyboardState.IsKeyDown(key) && previousKeyboardState.IsKeyUp(key);
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
+            currentKeyboardState = Keyboard.GetState();
 
             if (Keyboard.GetState().IsKeyDown(Keys.F11))
             {
@@ -119,71 +64,103 @@ namespace ConsoleSlayer_02
                 _graphics.ApplyChanges();
             }
 
+            if (IsKeyPressed(Keys.Tab))
+            {
+                switch (_session)
+                {
+                    case GameSession.InGame:
+                        _session = GameSession.Menu;
+                        break;
+                    case GameSession.Menu:
+                        _session = GameSession.InGame;
+                        break;
+                }
+            }
 
-            Player.Update(gameTime);
-            _camera.Follow(Player.Position);
-
-            if (! Map.IsThereAnyMapInitialized)
+            //test
+            if (!Map.IsThereAnyMapInitialized)
             {
                 Map.InitializeMap("Map1");
+                _session = GameSession.InGame;
             }
 
-            if (Demons == null)
+
+            switch (_session)
             {
-                IniDemons();
+                case GameSession.InGame:
+                    Player.Update(gameTime);
+                    _camera.Follow(Player.Position);
+
+                    if (DemonController.Demons.Count == 0)
+                    {
+                        DemonController.IniDemons();
+                    }
+                    else
+                    {
+                        DemonController.UpdateDemons(gameTime);
+                    }
+                    break;
+                case GameSession.Menu:
+                    break;
             }
-            else
-            {
-                UpdateDemons(gameTime);
-            }
+
 
             base.Update(gameTime);
+            previousKeyboardState = currentKeyboardState;
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin(transformMatrix: _camera.Transform);
-            #region Transform
-            Vector2 position = Vector2.Zero;
-            for (int i = 0; i < Map.Rows; i++)
+            switch (_session)
             {
-                for (int j = 0; j < Map.Columns; j++)
-                {
-                    _spriteBatch.Draw(Map.Map_Normal[i, j].Texture, position, Color.White);
-                    if (Map.Map_Decor[i, j].TextureType != Texture.None)
+                case GameSession.InGame:
+                    #region Transform
+                    _spriteBatch.Begin(transformMatrix: _camera.Transform);
+
+                    Vector2 position = Vector2.Zero;
+                    for (int i = 0; i < Map.Rows; i++)
                     {
-                        _spriteBatch.Draw(Map.Map_Decor[i, j].Texture, position, Color.White);
+                        for (int j = 0; j < Map.Columns; j++)
+                        {
+                            _spriteBatch.Draw(Map.Map_Normal[i, j].Texture, position, Color.White);
+                            if (Map.Map_Decor[i, j].TextureType != Texture.None)
+                            {
+                                _spriteBatch.Draw(Map.Map_Decor[i, j].Texture, position, Color.White);
+                            }
+
+                            position.X += Map.BlockSize;
+                        }
+                        position.X = 0;
+                        position.Y += Map.BlockSize;
                     }
 
-                    position.X += Map.BlockSize;
-                }
-                position.X = 0;
-                position.Y += Map.BlockSize;
+                    Player.DrawTransform(_spriteBatch);
+                    DemonController.DrawDemons(Font, _spriteBatch);
+
+                    #endregion
+                    _spriteBatch.End();
+
+                    //------------------
+
+                    _spriteBatch.Begin();
+                    #region Still
+                    Player.Draw(_spriteBatch, Font, GraphicsDevice);
+                    #endregion
+                    _spriteBatch.End();
+                    break;
+                case GameSession.Menu:
+                    _spriteBatch.Begin();
+                    _spriteBatch.DrawString(Font, "MENU", new Vector2(50, 50), Color.White);
+                    _spriteBatch.DrawString(Font, "Demons: " + DemonController.Demons.Count, new Vector2(50, 100), Color.White);
+                    _spriteBatch.DrawString(Font, "Current Map: " + Map.CurrentMapName, new Vector2(50, 150), Color.White);
+                    _spriteBatch.End();
+                    break;            
             }
 
-            Player.DrawTransform(_spriteBatch);
 
-            if (Demons.Count > 0)
-            {
-                for (int i = 0; i < Demons.Count; i++)
-                {
-                    Demons[i].Draw(_spriteBatch);
-                }
-            }
-            #endregion
-            _spriteBatch.End();
-
-            //------------------
-
-            _spriteBatch.Begin();
-            #region Still
-            Player.Draw(_spriteBatch, Font, GraphicsDevice);
-            #endregion
-            _spriteBatch.End();
-
-
+           
             base.Draw(gameTime);
         }
     }

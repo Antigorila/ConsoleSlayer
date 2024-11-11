@@ -19,10 +19,12 @@ namespace ConsoleSlayer_02
         public static int Columns;
         public const int BlockSize = 64;
         public static bool IsThereAnyMapInitialized = false;
+        public static string CurrentMapName = string.Empty;
 
         public static void InitializeMap(string MapName)
         {
             StreamReader readerNormal = new StreamReader($"Maps/{MapName}/{MapName}_Normal.txt");
+            CurrentMapName = MapName;
 
             // Get the column count
             Columns = GetMapColumnCount(readerNormal);

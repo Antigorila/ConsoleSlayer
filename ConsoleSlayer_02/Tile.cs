@@ -54,6 +54,7 @@ namespace ConsoleSlayer_02
             {
                 Texture = Map.Textures[textureType];
             }
+
         }
         public int Get_X()
         {

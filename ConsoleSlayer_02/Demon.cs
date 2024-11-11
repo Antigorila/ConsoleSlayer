@@ -38,13 +38,12 @@ namespace ConsoleSlayer_02
         private double timeSinceLastAction = 0;
         private double delayDuration = 0.5;
 
-        public Demon(DemonType type, Dictionary<DemonActions, Texture2D> actions)
+        public Demon(DemonType type)
         {
             Type = type;
             CurrentTile = GetSpawTile();
             CurrentAction = DemonActions.Run_Left;
             Position = CurrentTile.Position;
-            ActionTextures = actions;
             rng = new Random();
 
             switch (type)
@@ -52,18 +51,22 @@ namespace ConsoleSlayer_02
                 case DemonType.Karasu:
                     HP = 100;
                     AttackStrenght = 20;
+                    ActionTextures = DemonController.KarasuTextures;
                     break;
                 case DemonType.SkeletonSpearman:
                     HP = 80;
                     AttackStrenght = 15;
+                    ActionTextures = DemonController.SkeletonSpearman;
                     break;
                 case DemonType.SkeletonWarrior:
                     HP = 80;
                     AttackStrenght = 15;
+                    ActionTextures = DemonController.SkeletonWarrior;
                     break;
                 case DemonType.BlackWerewolf:
                     HP = 150;
                     AttackStrenght = 30;
+                    ActionTextures = DemonController.BlackWerewolfTextures;
                     break;
             }
         }
