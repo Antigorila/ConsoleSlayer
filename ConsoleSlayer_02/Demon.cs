@@ -32,18 +32,20 @@ namespace ConsoleSlayer_02
         public int AttackStrenght { get; set; }
         public DemonType Type { get; set; }
         public DemonActions CurrentAction { get; set; }
+        public bool IsDead { get; set; }
         private Dictionary<DemonActions, Texture2D> ActionTextures { get; set; }
         private Random rng;
         private Direction currentDirection;
         private double timeSinceLastAction = 0;
         private double delayDuration = 0.5;
-
+        //TODO: some stagger thing would be fun so you could do glory kills for hp
         public Demon(DemonType type)
         {
             Type = type;
             CurrentTile = GetSpawTile();
             CurrentAction = DemonActions.Run_Left;
             Position = CurrentTile.Position;
+            IsDead = false;
             rng = new Random();
 
             switch (type)
@@ -92,16 +94,23 @@ namespace ConsoleSlayer_02
         }
         public void Update(GameTime gameTime)
         {
-            timeSinceLastAction += gameTime.ElapsedGameTime.TotalSeconds;
-            if (timeSinceLastAction >= delayDuration)
+            if (! IsDead)
             {
-                currentDirection = (Direction)rng.Next(0, 4);
-                MoveDemon(currentDirection);
-                timeSinceLastAction = 0;
+                timeSinceLastAction += gameTime.ElapsedGameTime.TotalSeconds;
+                if (timeSinceLastAction >= delayDuration)
+                {
+                    currentDirection = (Direction)rng.Next(0, 4);
+                    MoveDemon(currentDirection);
+                    timeSinceLastAction = 0;
+                }
+                else
+                {
+                    MoveDemon(currentDirection);
+                }
             }
             else
             {
-                MoveDemon(currentDirection);
+                CurrentAction = DemonActions.Dead;
             }
         }
 
@@ -234,6 +243,21 @@ namespace ConsoleSlayer_02
         {
             _spriteBatch.DrawString(Font, this.Position.ToString(), new Vector2(0, 0), Color.White);
             _spriteBatch.DrawString(Font, this.CurrentTile.Type.ToString(), new Vector2(150, 0), Color.White);
+        }
+        public void Die()
+        {
+            IsDead = true;
+            this.CurrentAction = DemonActions.Dead;
+        }
+
+        public void TakeDamage(int ammount)
+        {
+            this.HP -= ammount;
+
+            if (this.HP - ammount < 0)
+            {
+                this.Die();
+            }
         }
     }
 }

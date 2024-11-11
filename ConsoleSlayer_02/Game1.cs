@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -21,6 +22,8 @@ namespace ConsoleSlayer_02
         private GameSession _session;
         private KeyboardState currentKeyboardState;
         private KeyboardState previousKeyboardState;
+        private SoundEffect menuMusic;
+        private float menuMusicVolume = 0.25f;
 
         public Game1()
         {
@@ -45,6 +48,8 @@ namespace ConsoleSlayer_02
             Map.LoadTextures(Content);
             Player.LoadTextures(Content);
             DemonController.LoadDemonTextures(Content);
+
+            menuMusic = Content.Load<SoundEffect>(@"sounds\AtDoomsGate_theme");
         }
         
         private bool IsKeyPressed(Keys key)
@@ -157,10 +162,7 @@ namespace ConsoleSlayer_02
                     _spriteBatch.DrawString(Font, "Current Map: " + Map.CurrentMapName, new Vector2(50, 150), Color.White);
                     _spriteBatch.End();
                     break;            
-            }
-
-
-           
+            } 
             base.Draw(gameTime);
         }
     }
