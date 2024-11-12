@@ -348,7 +348,7 @@ namespace ConsoleSlayer_02
 
                             if (distanceX >= 0 && distanceX <= range && distanceY <= range)
                             {
-                                demon.HP -= Player.Damage;
+                                demon.TakeDamage(Player.Damage);
                             }
                         }
                     }

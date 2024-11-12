@@ -440,12 +440,6 @@
 /processorParam:TextureFormat=Color
 /build:skull_door.png
 
-#begin sounds/AtDoomsGate_theme.mp3
-/importer:Mp3Importer
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sounds/AtDoomsGate_theme.mp3
-
 #begin Walk_Left.png
 /importer:TextureImporter
 /processor:TextureProcessor

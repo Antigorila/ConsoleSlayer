@@ -22,8 +22,6 @@ namespace ConsoleSlayer_02
         private GameSession _session;
         private KeyboardState currentKeyboardState;
         private KeyboardState previousKeyboardState;
-        private SoundEffect menuMusic;
-        private float menuMusicVolume = 0.25f;
 
         public Game1()
         {
@@ -49,7 +47,6 @@ namespace ConsoleSlayer_02
             Player.LoadTextures(Content);
             DemonController.LoadDemonTextures(Content);
 
-            menuMusic = Content.Load<SoundEffect>(@"sounds\AtDoomsGate_theme");
         }
         
         private bool IsKeyPressed(Keys key)

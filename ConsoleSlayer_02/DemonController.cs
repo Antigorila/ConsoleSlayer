@@ -63,6 +63,8 @@ namespace ConsoleSlayer_02
                     DemonController.Demons[i].Draw(_spriteBatch);
                     Vector2 vector2 = new Vector2(DemonController.Demons[i].Position.X, DemonController.Demons[i].Position.Y + 64);
                     _spriteBatch.DrawString(Font, "HP: " + DemonController.Demons[i].HP, vector2, Color.White);
+                    vector2.Y += 50;
+                    _spriteBatch.DrawString(Font, "IsDead: " + DemonController.Demons[i].IsDead, vector2, Color.White);
                 }
             }
         }
